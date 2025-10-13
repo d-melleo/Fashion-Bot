@@ -74,7 +74,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: fashion_bot_ai_worker
+    # container_name: fashion_bot_ai_worker
     restart: unless-stopped
     env_file:
       - .env
@@ -98,26 +98,6 @@ services:
     command: python -m workers.ai_worker
     deploy:
       replicas: 2  # Можна масштабувати для обробки більшої кількості запитів
-
-  # Optional: MongoDB Express for DB management (only for development)
-  mongo-express:
-    image: mongo-express:latest
-    container_name: fashion_bot_mongo_express
-    restart: unless-stopped
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD}
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/
-      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USER}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
-    ports:
-      - "8081:8081"
-    depends_on:
-      - mongodb
-    networks:
-      - bot_network
-    profiles:
-      - dev  # Only starts with: docker-compose --profile dev up
 
 volumes:
   mongodb_data:
