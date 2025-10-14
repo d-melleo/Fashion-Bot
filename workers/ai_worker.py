@@ -85,7 +85,10 @@ class AIGenerationWorker:
             )
             
             # Формування промпту для AI
-            prompt = self._build_prompt(user_profile, season)
+            from app.services.ai.gemini import GeminiProvider
+            
+            gemini_provider = GeminiProvider()
+            prompt = gemini_provider.build_prompt(user_profile, season)
             
             # Генерація через AI Manager
             start_time = datetime.utcnow()
