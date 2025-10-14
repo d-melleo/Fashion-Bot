@@ -29,7 +29,6 @@ class Settings(BaseSettings):
     MONGO_ROOT_USERNAME: str = Field(default="admin")
     MONGO_ROOT_PASSWORD: str = Field(...)
     MONGO_DATABASE: str = Field(default="fashion_bot")
-    MONGO_COLLECTION: str = Field(default="userdata")
     MONGO_HOST: str = Field(default="mongodb")
     MONGO_PORT: int = Field(default=27017)
     
