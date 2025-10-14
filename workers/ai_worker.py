@@ -234,13 +234,23 @@ Format your response in a clear, structured way in Ukrainian language. Be specif
             generation_id: ID генерації
             ai_response: Відповідь AI
         """
-        # TODO: Інтеграція з ботом для відправки повідомлення
-        # Можна використати webhook або окрему чергу для нотифікацій
-        logger.info(f"User {user_id} notified about completed generation {generation_id}")
+        from app.bot import bot
+        from app.handlers.user.generation import send_generation_result
+        
+        try:
+            await send_generation_result(user_id, generation_id, ai_response, bot)
+        except Exception as e:
+            logger.error(f"Failed to notify user {user_id}: {e}")
     
     async def _notify_user_error(self, user_id: int, generation_id: str):
         """Повідомити користувача про помилку"""
-        logger.info(f"User {user_id} notified about failed generation {generation_id}")
+        from app.bot import bot
+        from app.handlers.user.generation import send_generation_error
+        
+        try:
+            await send_generation_error(user_id, generation_id, bot)
+        except Exception as e:
+            logger.error(f"Failed to notify user about error {user_id}: {e}")
     
     async def start(self):
         """Запуск worker"""
