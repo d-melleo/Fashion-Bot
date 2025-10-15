@@ -1,5 +1,3 @@
-import config.settings
-
 def main():
     print("Hello from fashion-telegram-bot!")
 
