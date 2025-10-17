@@ -37,7 +37,7 @@ class Settings(BaseSettings):
         """Формує URL для підключення до MongoDB"""
         return (
             f"mongodb+srv://{self.MONGO_ROOT_USERNAME}:{self.MONGO_ROOT_PASSWORD}"
-            f"@{self.MONGO_HOST}:{self.MONGO_PORT}/{self.MONGO_DATABASE}"
+            f"@{self.MONGO_HOST}"
             f"?authSource=admin"
         )
     

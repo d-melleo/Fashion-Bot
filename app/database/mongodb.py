@@ -55,7 +55,7 @@ async def init_database() -> AsyncIOMotorDatabase:
 
 async def create_indexes():
     """Створення індексів для оптимізації запитів"""
-    if not _database:
+    if _database is None:
         return
     
     try:

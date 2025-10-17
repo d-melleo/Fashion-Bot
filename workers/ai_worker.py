@@ -20,7 +20,7 @@ from app.services.queue.rabbitmq import (
     rabbitmq_connection,
     close_connections
 )
-from app.services.ai.manager import ai_manager, init_ai_manager
+from app.services.ai.manager import init_ai_manager
 from app.utils.logger import setup_logger
 
 logger = logging.getLogger(__name__)
