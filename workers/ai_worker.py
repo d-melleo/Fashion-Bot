@@ -20,7 +20,7 @@ from app.services.queue.rabbitmq import (
     rabbitmq_connection,
     close_connections
 )
-from app.services.ai.manager import init_ai_manager
+from app.services.ai.manager import init_ai_manager, get_ai_manager
 from app.utils.logger import setup_logger
 
 logger = logging.getLogger(__name__)
@@ -56,6 +56,8 @@ class AIGenerationWorker:
         Args:
             task_data: Дані з RabbitMQ
         """
+        ai_manager = get_ai_manager()
+        
         task_id = task_data.get('task_id')
         user_id = task_data.get('user_id')
         generation_id = task_data.get('generation_id')
