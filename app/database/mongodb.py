@@ -5,6 +5,8 @@ MongoDB Connection and Initialization
 import logging
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo.errors import ServerSelectionTimeoutError, ConnectionFailure
+
 
 from app.config.settings import settings
 
@@ -30,13 +32,23 @@ async def init_database() -> AsyncIOMotorDatabase:
             settings.MONGODB_URL,
             serverSelectionTimeoutMS=5000,
             connectTimeoutMS=10000,
+            retryWrites=True,
+            maxPoolSize=50,
+            minPoolSize=10
         )
         
         # Отримання бази даних
         _database = _db_client[settings.MONGO_DATABASE]
         
         # Перевірка підключення
-        await _db_client.admin.command('ping')
+        try:
+            await _db_client.admin.command('ping')
+        except ServerSelectionTimeoutError as e:
+            logger.error(f"Failed to connect to MongoDB Atlas: {e}")
+            raise
+        except ConnectionFailure as e:
+            logger.error(f"MongoDB Atlas connection failure: {e}")
+            raise
         
         # Створення індексів
         await create_indexes()
@@ -141,7 +153,7 @@ async def get_user(telegram_id: int) -> Optional[dict]:
 
 
 async def create_user(telegram_id: int, username: str = None, 
-                     first_name: str = None, last_name: str = None) -> dict:
+                    first_name: str = None, last_name: str = None) -> dict:
     """Створити нового користувача"""
     from datetime import datetime
     

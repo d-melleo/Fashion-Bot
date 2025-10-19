@@ -18,6 +18,13 @@ from app.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
+QUEUE_ARGUMENTS = {
+    'x-message-ttl': 600000,  # 10 minutes in milliseconds
+    'x-max-length': 1000,     # Maximum number of messages
+    'x-overflow': 'reject-publish',  # Reject new messages when queue is full
+    'x-queue-type': 'classic',  # Use classic queue type
+    'x-ha-policy': 'all'      # Mirror queue across all nodes
+}
 
 class RabbitMQConnection:
     """Singleton клас для підключення до RabbitMQ"""
@@ -94,10 +101,7 @@ class AIGenerationProducer:
         self.queue = await self.channel.declare_queue(
             self.QUEUE_NAME,
             durable=True,
-            arguments={
-                "x-message-ttl": 600000,  # 10 хвилин TTL
-                "x-max-length": 1000,  # Максимум 1000 повідомлень
-            }
+            arguments=QUEUE_ARGUMENTS
         )
         
         # Прив'язка черги до exchange
@@ -190,7 +194,7 @@ class AIGenerationConsumer:
         """
         Args:
             callback: Async функція для обробки повідомлень
-                     Повинна приймати Dict з даними задачі
+                    Повинна приймати Dict з даними задачі
         """
         self.channel: Optional[AbstractChannel] = None
         self.queue: Optional[AbstractQueue] = None

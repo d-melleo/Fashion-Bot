@@ -28,8 +28,8 @@ class Settings(BaseSettings):
     # ========================================
     MONGO_ROOT_USERNAME: str = Field(default="admin")
     MONGO_ROOT_PASSWORD: str = Field(...)
-    MONGO_DATABASE: str = Field(default="fashion_bot")
-    MONGO_HOST: str = Field(default="mongodb")
+    MONGO_DATABASE: str = Field(default="FashionBot")
+    MONGO_HOST: str = Field(default="cluster0.qh8t139.mongodb.net")
     MONGO_PORT: int = Field(default=27017)
     
     @property
@@ -38,7 +38,8 @@ class Settings(BaseSettings):
         return (
             f"mongodb+srv://{self.MONGO_ROOT_USERNAME}:{self.MONGO_ROOT_PASSWORD}"
             f"@{self.MONGO_HOST}"
-            f"?authSource=admin"
+            f"/{self.MONGO_DATABASE}"  # Add database name
+            f"?retryWrites=true&w=majority"  # Add recommended options
         )
     
     # ========================================
