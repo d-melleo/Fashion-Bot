@@ -1,42 +1,38 @@
-# Use Python 3.11 slim image
+# syntax=docker/dockerfile:1
+
 FROM python:3.12-slim
 
-# Set working directory
+# Встановлюємо робочу директорію
 WORKDIR /app
 
-# Set environment variables
+# Налаштовуємо змінні середовища
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies
+# Встановлюємо системні залежності
 RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    make \
-    libffi-dev \
-    libssl-dev \
+    gcc g++ make libffi-dev libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file
+# Копіюємо requirements
 COPY requirements.txt .
 
-# Install Python dependencies
+# Встановлюємо залежності
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# 🔥 Встановлюємо watchfiles для hot reload
+RUN pip install watchfiles
 
-# Create logs directory
+# Створюємо папку для логів
 RUN mkdir -p /app/logs
 
-# Create non-root user for security
+# Створюємо користувача без root-доступу
 RUN useradd -m -u 1000 botuser && \
     chown -R botuser:botuser /app
 
-# Switch to non-root user
 USER botuser
 
-# Default command (can be overridden in docker-compose)
+# Команда за замовчуванням (перевизначена в docker-compose)
 CMD ["python", "-m", "app.main"]

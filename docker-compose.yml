@@ -1,5 +1,4 @@
 services:
-  # MongoDB Database
   mongodb:
     image: mongo:7.0
     container_name: fashion_bot_mongodb
@@ -21,7 +20,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # RabbitMQ Message Broker
   rabbitmq:
     image: rabbitmq:3.12-management-alpine
     container_name: fashion_bot_rabbitmq
@@ -30,8 +28,8 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
-      - "5672:5672"      # AMQP port
-      - "15672:15672"    # Management UI
+      - "5673:5672"
+      - "15673:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -42,7 +40,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Telegram Bot Application
   bot:
     build:
       context: .
@@ -52,7 +49,7 @@ services:
     env_file:
       - .env
     environment:
-      - MONGODB_URL=mongodb+srv://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}/${MONGO_DATABASE}?retryWrites=true&w=majority
+      - MONGODB_URL=mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}:27017/${MONGO_DATABASE}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}/
     volumes:
       - ./app:/app/app
@@ -65,19 +62,18 @@ services:
         condition: service_healthy
     networks:
       - bot_network
-    command: python -m app.main
+    # Використовується watchfiles для hot reload
+    command: watchfiles --filter python "python -m app.main"
 
-  # AI Worker for processing generation requests
   ai_worker:
     build:
       context: .
       dockerfile: Dockerfile
-    # container_name: fashion_bot_ai_worker
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      - MONGODB_URL=mongodb+srv://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}/${MONGO_DATABASE}?retryWrites=true&w=majority
+      - MONGODB_URL=mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}:27017/${MONGO_DATABASE}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}/
       - WORKER_TYPE=ai_generation
     volumes:
@@ -93,9 +89,8 @@ services:
         condition: service_started
     networks:
       - bot_network
-    command: python -m workers.ai_worker
-    deploy:
-      replicas: 2  # Можна масштабувати для обробки більшої кількості запитів
+    # Автоматичне оновлення для воркерів
+    command: watchfiles --filter python "python -m workers.ai_worker"
 
 volumes:
   mongodb_data:

@@ -133,22 +133,27 @@ class AIGenerationProducer:
         if not self.channel or not self.queue:
             await self.initialize()
         
+        user_profile['_id'] = str(user_profile['_id'])
+        user_profile['created_at'] = str(user_profile['created_at'].isoformat())
+        user_profile['updated_at'] = str(user_profile['updated_at'].isoformat())
+        
         try:
+            current_time = datetime.utcnow()
             message_body = {
                 "task_id": task_id,
                 "user_id": user_id,
                 "user_profile": user_profile,
                 "season": season,
                 "generation_id": generation_id,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": current_time.isoformat(),
             }
             
             message = Message(
-                body=json.dumps(message_body).encode(),
+                body=json.dumps(message_body, default=str).encode(),
                 delivery_mode=DeliveryMode.PERSISTENT,
                 content_type="application/json",
                 message_id=task_id,
-                timestamp=datetime.utcnow(),
+                timestamp=current_time,
                 headers={
                     "user_id": user_id,
                     "generation_id": generation_id,
@@ -208,7 +213,8 @@ class AIGenerationConsumer:
         # Отримання черги
         self.queue = await self.channel.declare_queue(
             self.QUEUE_NAME,
-            durable=True
+            durable=True,
+            arguments=QUEUE_ARGUMENTS
         )
         
         logger.info(f"AI Generation Consumer initialized: {self.QUEUE_NAME}")
@@ -282,7 +288,8 @@ class StylistRequestProducer:
         
         self.queue = await self.channel.declare_queue(
             self.QUEUE_NAME,
-            durable=True
+            durable=True,
+            arguments=QUEUE_ARGUMENTS
         )
         
         await self.queue.bind(exchange)
