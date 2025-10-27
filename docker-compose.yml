@@ -28,8 +28,8 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
-      - "5673:5672"
-      - "15673:15672"
+      - "5675:5672"
+      - "15675:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -63,7 +63,7 @@ services:
     networks:
       - bot_network
     # Використовується watchfiles для hot reload
-    command: watchfiles --filter python "python -m app.main"
+    command: ["sh", "-c", "./wait-for-rabbit.sh watchfiles --filter python 'python -m app.main'"]
 
   ai_worker:
     build:
@@ -90,7 +90,7 @@ services:
     networks:
       - bot_network
     # Автоматичне оновлення для воркерів
-    command: watchfiles --filter python "python -m workers.ai_worker"
+    command: ["sh", "-c", "./wait-for-rabbit.sh watchfiles --filter python 'python -m workers.ai_worker'"]
 
 volumes:
   mongodb_data:

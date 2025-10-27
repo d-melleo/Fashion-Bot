@@ -13,11 +13,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Встановлюємо системні залежності
 RUN apt-get update && apt-get install -y \
-    gcc g++ make libffi-dev libssl-dev \
+    gcc \
+    g++ \
+    make \
+    libffi-dev \
+    libssl-dev \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Копіюємо requirements
 COPY requirements.txt .
+COPY wait-for-rabbit.sh .
 
 # Встановлюємо залежності
 RUN pip install --no-cache-dir -r requirements.txt
