@@ -98,6 +98,152 @@ Telegram бот для індивідуального підбору одягу 
 ### State Machine:
 Детальна діаграма станів доступна в [State Machine Diagram](#state-machine-diagram)
 
+```mermaid
+stateDiagram-v2
+    [*] --> CheckUser: /start
+    
+    CheckUser --> NewUser: Користувач не існує
+    CheckUser --> ExistingUser: Користувач існує
+    
+    state NewUser {
+        [*] --> AwaitingHeight: Реєстрація
+        AwaitingHeight --> AwaitingWeight: Введено зріст
+        AwaitingWeight --> AwaitingBodyType: Введено вагу
+        AwaitingBodyType --> AwaitingStyle: Обрано тип фігури
+        AwaitingStyle --> AwaitingPhoto: Обрано стиль
+        AwaitingPhoto --> ProfileComplete: Завантажено фото
+        ProfileComplete --> MainMenu
+    }
+    
+    state ExistingUser {
+        [*] --> CheckRole: Перевірка ролі
+        CheckRole --> UserMenu: User
+        CheckRole --> StylistMenu: Stylist
+        CheckRole --> SupervisorMenu: Supervisor
+        CheckRole --> OwnerMenu: Owner
+    }
+    
+    state MainMenu {
+        UserMenu --> GenerateOutfit: /generate
+        UserMenu --> ViewProfile: /profile
+        UserMenu --> ViewHistory: /history
+        UserMenu --> ManageSubscription: /subscription
+        UserMenu --> RequestStylist: /request_stylist
+        UserMenu --> OpenWebApp: /webapp
+    }
+    
+    state GenerateOutfit {
+        [*] --> SelectSeason: Генерація образу
+        SelectSeason --> ConfirmGeneration: Обрано пору року
+        ConfirmGeneration --> CheckSubscription: Підтверджено
+        CheckSubscription --> CheckTrial: Немає підписки
+        CheckSubscription --> AddToQueue: Є підписка
+        CheckTrial --> ShowTrialError: Trial використано
+        CheckTrial --> AddToQueue: Trial доступний
+        AddToQueue --> ProcessingInQueue: Запит в RabbitMQ
+        ProcessingInQueue --> ShowResult: AI згенерував
+        ShowResult --> [*]
+        ShowTrialError --> ManageSubscription
+    }
+    
+    state ManageSubscription {
+        [*] --> ShowSubscriptionInfo: Інформація
+        ShowSubscriptionInfo --> ConfirmPayment: Оформити підписку
+        ShowSubscriptionInfo --> [*]: Скасувати
+        ConfirmPayment --> CreateInvoice: Підтверджено
+        CreateInvoice --> AwaitingPayment: Інвойс створено
+        AwaitingPayment --> PaymentSuccess: Оплачено
+        AwaitingPayment --> PaymentFailed: Помилка
+        PaymentSuccess --> [*]: Підписка активна
+        PaymentFailed --> ShowSubscriptionInfo: Спробувати знову
+    }
+    
+    state ViewProfile {
+        [*] --> ShowProfile: Показати профіль
+        ShowProfile --> EditMenu: Редагувати
+        ShowProfile --> [*]: Назад
+        EditMenu --> EditHeight: Змінити зріст
+        EditMenu --> EditWeight: Змінити вагу
+        EditMenu --> EditBodyType: Змінити тип фігури
+        EditMenu --> EditStyle: Змінити стиль
+        EditMenu --> EditPhoto: Змінити фото
+        EditHeight --> ConfirmChanges: Введено
+        EditWeight --> ConfirmChanges: Введено
+        EditBodyType --> ConfirmChanges: Обрано
+        EditStyle --> ConfirmChanges: Обрано
+        EditPhoto --> ConfirmChanges: Завантажено
+        ConfirmChanges --> ProfileUpdated: Підтверджено
+        ProfileUpdated --> [*]
+    }
+    
+    state RequestStylist {
+        [*] --> CheckStylistSubscription: Перевірка підписки
+        CheckStylistSubscription --> ShowSubscriptionError: Немає підписки
+        CheckStylistSubscription --> AwaitingMessage: Є підписка
+        ShowSubscriptionError --> ManageSubscription
+        AwaitingMessage --> ConfirmRequest: Введено повідомлення
+        ConfirmRequest --> SendToStylist: Підтверджено
+        SendToStylist --> RequestSent: Стиліст отримав
+        RequestSent --> [*]
+    }
+    
+    state StylistMenu {
+        [*] --> ViewRequests: /stylist_requests
+        ViewRequests --> ViewClientProfile: Обрати запит
+        ViewClientProfile --> AcceptRequest: Прийняти
+        ViewClientProfile --> [*]: Назад
+        AcceptRequest --> ChatActive: Стиліст приймає
+        ChatActive --> [*]: Чат в Telegram
+    }
+    
+    state SupervisorMenu {
+        [*] --> SupervisorActions
+        SupervisorActions --> ManageStylists: /add_stylist, /remove_stylist
+        SupervisorActions --> ViewStatistics: /statistics
+        SupervisorActions --> ManageUsers: /block_user, /unblock_user
+        
+        ManageStylists --> AwaitingStylistID: Введіть Telegram ID
+        AwaitingStylistID --> ConfirmStylistAction: Підтвердити
+        ConfirmStylistAction --> StylistUpdated: Виконано
+        StylistUpdated --> [*]
+        
+        ManageUsers --> AwaitingUserID: Введіть Telegram ID
+        AwaitingUserID --> ConfirmUserAction: Підтвердити
+        ConfirmUserAction --> UserUpdated: Виконано
+        UserUpdated --> [*]
+    }
+    
+    state OwnerMenu {
+        [*] --> OwnerActions
+        OwnerActions --> ManageSupervisors: Керування Supervisors
+        OwnerActions --> ManageUserSubscriptions: Керування підписками
+        OwnerActions --> ConfigureAI: Налаштування AI
+        OwnerActions --> SystemManagement: Системні функції
+        
+        ManageSupervisors --> AwaitingSupervisorID: Введіть ID
+        AwaitingSupervisorID --> ConfirmSupervisorAction: Підтвердити
+        ConfirmSupervisorAction --> SupervisorUpdated: Виконано
+        SupervisorUpdated --> [*]
+        
+        ConfigureAI --> SelectAIProvider: Обрати провайдера
+        SelectAIProvider --> ConfigureProvider: Налаштувати
+        ConfigureProvider --> AIUpdated: Збережено
+        AIUpdated --> [*]
+    }
+    
+    note right of ProcessingInQueue
+        RabbitMQ Worker обробляє
+        AI генерує рекомендації
+        Може тривати 10-30 сек
+    end note
+    
+    note right of ChatActive
+        Приватний чат
+        Без участі бота
+        Стиліст → Користувач
+    end note
+```
+
 ### База даних:
 ER-діаграма MongoDB доступна в документації проєкту
 
