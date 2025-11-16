@@ -260,7 +260,7 @@ ER-діаграма MongoDB доступна в документації про�
 ### 1. Клонування репозиторію:
 
 ```bash
-git clone https://github.com/yourusername/fashion-telegram-bot.git
+git clone https://github.com/d-melleo/Fashion-Bot.git
 cd fashion-telegram-bot
 ```
 
@@ -376,7 +376,7 @@ docker-compose up -d
 # В docker-compose.yml змінити replicas
 ai_worker:
   deploy:
-    replicas: 4  # Збільшити для більшої швидкості обробки
+    replicas: 2  # Збільшити для більшої швидкості обробки
 ```
 
 ---
@@ -541,7 +541,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📧 Контакти
 
-Project Link: [https://github.com/yourusername/fashion-telegram-bot](https://github.com/yourusername/fashion-telegram-bot)
+Project Link: [https://github.com/d-melleo/Fashion-Bot.git](https://github.com/d-melleo/Fashion-Bot.git)
 
 ---
 
