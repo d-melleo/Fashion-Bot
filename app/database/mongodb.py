@@ -224,6 +224,7 @@ async def can_use_trial(telegram_id: int) -> bool:
 
 
 async def mark_trial_used(telegram_id: int):
+    return
     """Позначити trial як використаний"""
     db = await get_database()
     await db.users.update_one(

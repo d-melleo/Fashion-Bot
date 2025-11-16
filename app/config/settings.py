@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     # AI PROVIDERS
     # ========================================
     GEMINI_API_KEY: str = Field(...)
-    GEMINI_MODEL: str = Field(default="gemini-2.5-pro")
+    GEMINI_MODEL: str = Field(default="gemini-2.0-flash")
     GEMINI_TEMPERATURE: float = Field(default=0.7)
     GEMINI_MAX_TOKENS: int = Field(default=2048)
     

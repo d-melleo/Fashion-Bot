@@ -107,7 +107,7 @@ class AIGenerationWorker:
                             'ai_response': ai_response,
                             'completed_at': datetime.utcnow(),
                             'processing_time': processing_time,
-                            'ai_provider': ai_manager.active_provider
+                            'ai_provider': ai_manager.active_provider.get_provider_name()
                         }
                     }
                 )
