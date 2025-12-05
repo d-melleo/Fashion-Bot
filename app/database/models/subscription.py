@@ -7,6 +7,7 @@ from typing import Optional, Dict
 from bson import ObjectId
 
 from app.database.mongodb import get_database
+from app.config.settings import settings
 
 
 class Subscription:
@@ -18,8 +19,8 @@ class Subscription:
         status: str = "active",
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        amount: float = 10.00,
-        currency: str = "USD",
+        amount: float = float(settings.SUBSCRIPTION_PRICE),
+        currency: str = settings.SUBSCRIPTION_CURRENCY,
         auto_renew: bool = False,
         created_at: Optional[datetime] = None,
         _id: Optional[ObjectId] = None
@@ -61,8 +62,8 @@ class Subscription:
             status=data.get("status", "active"),
             start_date=data.get("start_date"),
             end_date=data.get("end_date"),
-            amount=data.get("amount", 10.00),
-            currency=data.get("currency", "USD"),
+            amount=data.get("amount", float(settings.SUBSCRIPTION_PRICE)),
+            currency=data.get("currency", settings.SUBSCRIPTION_CURRENCY),
             auto_renew=data.get("auto_renew", False),
             created_at=data.get("created_at")
         )

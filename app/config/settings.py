@@ -89,6 +89,8 @@ class Settings(BaseSettings):
     SUBSCRIPTION_PRICE: float = Field(default=10.00)
     SUBSCRIPTION_CURRENCY: str = Field(default="USD")
     
+    CURRENCY_CONVERSION_KEY: str = Field(...)
+    
     # ========================================
     # WEB APP
     # ========================================

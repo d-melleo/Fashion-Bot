@@ -61,11 +61,12 @@ async def setup_bot():
     logger.info("Middlewares registered")
     
     # Реєстрація handlers
-    from app.handlers.user import start, registration, generation
+    from app.handlers.user import start, registration, generation, subscription
     
     dp.include_router(start.router)
     dp.include_router(registration.router)
     dp.include_router(generation.router)
+    dp.include_router(subscription.router)
     
     logger.info("Handlers registered")
 
