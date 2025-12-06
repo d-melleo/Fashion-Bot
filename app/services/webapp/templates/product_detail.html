@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="product">
+    <h2>{{ product.title }}</h2>
+    <img src="{{ product.image }}" alt="{{ product.title }}" width="180"><br>
+    <b>${{ product.price }}</b><br>
+    <p>{{ product.description }}</p>
+    <button class="cart-btn" onclick="addToCart({{ product.id }}, '{{ product.title|replace("'", "\\'") }}', {{ product.price }})">Add to Cart</button>
+    <a href="/webapp">Back to store</a>
+</div>
+{% endblock %}

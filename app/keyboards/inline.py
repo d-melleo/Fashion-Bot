@@ -4,14 +4,20 @@ Inline Keyboards для Telegram Bot
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from app.config.settings import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # ========================================
 # MAIN MENU
 # ========================================
 
-def get_main_menu_keyboard(has_subscription: bool = False, is_stylist: bool = False) -> InlineKeyboardMarkup:
+async def get_main_menu_keyboard(has_subscription: bool = False, is_stylist: bool = False) -> InlineKeyboardMarkup:
     """Головне меню користувача"""
+    from app.config.ngrok import NgrokConfig
+    
     builder = InlineKeyboardBuilder()
     
     # Основні функції
@@ -38,9 +44,16 @@ def get_main_menu_keyboard(has_subscription: bool = False, is_stylist: bool = Fa
         InlineKeyboardButton(text="👨‍💼 Запит стиліста", callback_data="request_stylist")
     )
     
-    # Web App
+    # Web App with dynamic ngrok URL
+    try:
+        webapp_url = await NgrokConfig.get_public_url()
+        logger.info(f"Using webapp URL: {webapp_url}")
+    except Exception as e:
+        logger.warning(f"Error getting ngrok URL: {e}, using fallback")
+        webapp_url = "http://localhost:8000"
+    
     builder.row(
-        InlineKeyboardButton(text="🛍️ Каталог одягу", web_app={"url": "https://your-webapp-url.com"})
+        InlineKeyboardButton(text="🛍️ Каталог одягу", web_app={"url": f"{webapp_url}/webapp"})
     )
     
     # Для стилістів

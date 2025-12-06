@@ -94,7 +94,7 @@ class Settings(BaseSettings):
     # ========================================
     # WEB APP
     # ========================================
-    WEBAPP_URL: str = Field(default="https://your-webapp-domain.com")
+    WEBAPP_URL: str = Field(default="https://0.0.0.0:8000/webapp")
     FAKE_STORE_API_URL: str = Field(default="https://fakestoreapi.com")
     
     # ========================================

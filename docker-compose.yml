@@ -15,7 +15,7 @@ services:
     networks:
       - bot_network
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet > /dev/null 2>&1
       interval: 10s
       timeout: 5s
       retries: 5
@@ -40,6 +40,32 @@ services:
       timeout: 5s
       retries: 5
 
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.webapp
+    container_name: fashion_bot_webapp
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NGROK_AUTH_TOKEN=${NGROK_AUTH_TOKEN}
+    volumes:
+      - ./app:/app/app
+      - ./logs:/app/logs
+      - ngrok_shared:/tmp/shared
+    ports:
+      - "8000:8000"
+      - "4040:4040"
+    networks:
+      - bot_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   bot:
     build:
       context: .
@@ -55,10 +81,13 @@ services:
       - ./app:/app/app
       - ./logs:/app/logs
       - bot_data:/app/data
+      - ngrok_shared:/tmp/shared
     depends_on:
       mongodb:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      webapp:
         condition: service_healthy
     networks:
       - bot_network
@@ -100,6 +129,8 @@ volumes:
   rabbitmq_data:
     driver: local
   bot_data:
+    driver: local
+  ngrok_shared:
     driver: local
 
 networks:

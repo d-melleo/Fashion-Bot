@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    {% for p in products %}
+    <div class="product">
+        <h2>{{ p.title }}</h2>
+        <img src="{{ p.image }}" alt="{{ p.title }}" width="120"><br>
+        <b>${{ p.price }}</b><br>
+        <button class="cart-btn" onclick="addToCart({{ p.id }}, '{{ p.title|replace("'", "\\'") }}', {{ p.price }})">Add to Cart</button>
+        <a href="/webapp/product/{{ p.id }}">Details</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

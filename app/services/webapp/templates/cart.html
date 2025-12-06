@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+if (cart.length === 0) {
+    document.write('<p>Your cart is empty.</p><a href="/webapp">Back to store</a>');
+} else {
+    let html = '<table class="cart-table"><tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th></tr>';
+    let total = 0;
+    cart.forEach(item => {
+        let itemTotal = item.price * item.qty;
+        total += itemTotal;
+        html += `<tr>
+            <td>${item.title}</td>
+            <td>$${item.price}</td>
+            <td>
+                <button onclick="changeQty(${item.id}, -1)">-</button>
+                ${item.qty}
+                <button onclick="changeQty(${item.id}, 1)">+</button>
+            </td>
+            <td>$${itemTotal.toFixed(2)}</td>
+            <td><button onclick="removeFromCart(${item.id})">Remove</button></td>
+        </tr>`;
+    });
+    html += `<tr><td colspan="3"><b>Total</b></td><td colspan="2"><b>$${total.toFixed(2)}</b></td></tr>`;
+    html += '</table>';
+    html += '<button class="checkout-btn" onclick="checkout()">Checkout</button>';
+    html += '<br><a href="/webapp">Back to store</a>';
+    document.write(html);
+}
+</script>
+{% endblock %}

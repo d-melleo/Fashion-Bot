@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY ./app /app/app
+
+RUN pip install --no-cache-dir fastapi uvicorn httpx pydantic pydantic-settings jinja2
+
+# Install ngrok and curl
+RUN apt-get update && apt-get install -y wget unzip curl && \
+    wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip && \
+    unzip ngrok-v3-stable-linux-amd64.zip -d /usr/local/bin && \
+    rm ngrok-v3-stable-linux-amd64.zip && \
+    apt-get clean
+
+EXPOSE 8000
+
+COPY ./entrypoint.webapp.sh /app/entrypoint.webapp.sh
+RUN chmod +x /app/entrypoint.webapp.sh
+
+CMD ["/app/entrypoint.webapp.sh"]

@@ -63,7 +63,7 @@ async def cmd_start(message: Message, state: FSMContext, db_user: dict, telegram
         await message.answer(
             f"👋 <b>Раді бачити вас знову, {message.from_user.first_name}!</b>\n\n"
             "Що бажаєте зробити сьогодні? 👇",
-            reply_markup=get_main_menu_keyboard(
+            reply_markup=await get_main_menu_keyboard(
                 has_subscription=has_sub,
                 is_stylist=is_stylist
             ),
@@ -87,7 +87,7 @@ async def show_main_menu(event: Message | CallbackQuery, state: FSMContext,
         "Оберіть потрібну дію з меню нижче:"
     )
     
-    keyboard = get_main_menu_keyboard(
+    keyboard = await get_main_menu_keyboard(
         has_subscription=has_sub,
         is_stylist=is_stylist
     )

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; background: #f7f7f7; }
+        .product { border: 1px solid #ccc; background: #fff; padding: 1em; margin-bottom: 1em; border-radius: 8px; }
+        .cart-btn { background: #007bff; color: #fff; border: none; padding: 0.5em 1em; border-radius: 4px; cursor: pointer; }
+        .cart-btn:disabled { background: #aaa; }
+        .cart-link { float: right; }
+        .cart-table td, .cart-table th { padding: 0.5em 1em; }
+        .checkout-btn { background: #28a745; color: #fff; border: none; padding: 0.5em 1em; border-radius: 4px; cursor: pointer; }
+    </style>
+    <script>
+        function addToCart(id, title, price) {
+            let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+            let item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty += 1;
+            } else {
+                cart.push({id, title, price, qty: 1});
+            }
+            sessionStorage.setItem('cart', JSON.stringify(cart));
+            alert('Added to cart!');
+        }
+        function removeFromCart(id) {
+            let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+            cart = cart.filter(i => i.id !== id);
+            sessionStorage.setItem('cart', JSON.stringify(cart));
+            location.reload();
+        }
+        function changeQty(id, delta) {
+            let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+            let item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty < 1) item.qty = 1;
+            }
+            sessionStorage.setItem('cart', JSON.stringify(cart));
+            location.reload();
+        }
+        function checkout() {
+            let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+            if (cart.length === 0) {
+                alert('Cart is empty!');
+                return;
+            }
+            sessionStorage.removeItem('cart');
+            window.location.href = '/webapp/checkout';
+        }
+    </script>
+</head>
+<body>
+    <a href="/webapp/cart" class="cart-link">🛒 Cart</a>
+    <h1>{{ title }}</h1>
+    {% block content %}{% endblock %}
+</body>
+</html>
